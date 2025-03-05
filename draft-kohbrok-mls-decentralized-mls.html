@@ -7,13 +7,24 @@
 <title>Decentralized Messaging Layer Security</title>
 <meta content="Konrad Kohbrok" name="author">
 <meta content="
-       TODO Abstract 
+       Messaging Layer Security provides strong end-to-end security guarantees for
+group messaging including Forward Secrecy (FS) and Post-Compromise Security
+(PCS). However, MLS requires a Delivery Service (DS) to facilitate agreement
+between group members on the order of Commit messages. In decentralized settings
+the only way to implement a functional DS is to require group members to retain
+key material so they can process commits out-of-order. Retaining key material
+this way is in violation of the MLS deletion schedule and significantly reduces
+the FS of the protocol. This draft specifies Decentralized MLS, based on the the
+Fork-Resilient Continuous Group Key Agreement protocol FREEK proposed by Alwen
+et al.  . In essence, DMLS extends MLS such that key material can be
+retained to process Commits out-of-order with minimal losses to FS, thus
+allowing safer deployment in decentralized environments. 
     " name="description">
 <meta content="xml2rfc 3.28.0" name="generator">
-<meta content="next generation" name="keyword">
-<meta content="unicorn" name="keyword">
-<meta content="sparkling distributed ledger" name="keyword">
-<meta content="draft-todo-yourname-protocol-latest" name="ietf.draft">
+<meta content="security" name="keyword">
+<meta content="authenticated key exchange" name="keyword">
+<meta content="end-to-end encryption" name="keyword">
+<meta content="draft-kohbrok-mls-decentralized-mls-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.28.0
     Python 3.12.9
@@ -1058,9 +1069,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <div id="internal-metadata" class="document-information">
 <dl id="identifiers">
 <dt class="label-workgroup">Workgroup:</dt>
-<dd class="workgroup">WG Working Group</dd>
+<dd class="workgroup">Messaging Layer Security</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-todo-yourname-protocol-latest</dd>
+<dd class="internet-draft">draft-kohbrok-mls-decentralized-mls-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
 <time datetime="2025-03-05" class="published">5 March 2025</time>
@@ -1081,7 +1092,18 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">Decentralized Messaging Layer Security</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">TODO Abstract<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">Messaging Layer Security provides strong end-to-end security guarantees for
+group messaging including Forward Secrecy (FS) and Post-Compromise Security
+(PCS). However, MLS requires a Delivery Service (DS) to facilitate agreement
+between group members on the order of Commit messages. In decentralized settings
+the only way to implement a functional DS is to require group members to retain
+key material so they can process commits out-of-order. Retaining key material
+this way is in violation of the MLS deletion schedule and significantly reduces
+the FS of the protocol. This draft specifies Decentralized MLS, based on the the
+Fork-Resilient Continuous Group Key Agreement protocol FREEK proposed by Alwen
+et al. <span>[<a href="#FRCGKA" class="cite xref">FRCGKA</a>]</span>. In essence, DMLS extends MLS such that key material can be
+retained to process Commits out-of-order with minimal losses to FS, thus
+allowing safer deployment in decentralized environments.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1089,14 +1111,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        The latest revision of this draft can be found at <span><a href="https://example.com/LATEST">https://example.com/LATEST</a></span>.
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-todo-yourname-protocol/">https://datatracker.ietf.org/doc/draft-todo-yourname-protocol/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        The latest revision of this draft can be found at <span><a href="https://phnx-im.github.io/dmls-spec/draft-kohbrok-mls-decentralized-mls.html">https://phnx-im.github.io/dmls-spec/draft-kohbrok-mls-decentralized-mls.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-kohbrok-mls-decentralized-mls/">https://datatracker.ietf.org/doc/draft-kohbrok-mls-decentralized-mls/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
-        WG Working Group mailing list (<span><a href="mailto:WG@example.com">mailto:WG@example.com</a></span>),
-        which is archived at <span><a href="https://example.com/WG">https://example.com/WG</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+        Messaging Layer Security  mailing list (<span><a href="mailto:mls@ietf.org">mailto:mls@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/mls/">https://mailarchive.ietf.org/arch/browse/mls/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/mls/">https://www.ietf.org/mailman/listinfo/mls/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 <p id="section-note.1-4">Source for this draft and an issue tracker can be found at
-        <span><a href="https://github.com/USER/REPO">https://github.com/USER/REPO</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+        <span><a href="https://github.com/phnx-im/dmls-spec">https://github.com/phnx-im/dmls-spec</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1150,22 +1173,36 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
-            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-epoch-identifiers" class="internal xref">Epoch identifiers</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-dmls-key-schedule" class="internal xref">DMLS key schedule</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-puncturable-pseudorandom-fu" class="internal xref">Puncturable pseudorandom function</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1176,51 +1213,184 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">TODO Introduction<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-1">TODO: Introduction<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">Open Questions:
+- Why do removed members need to receive their commit confirmation from their
+  removers? They should be able to process the removing commit without the init
+  secret in the first place.
+- Is it safe to use the commit secret regularly in the key schedule <em>and</em> to
+  derive the commit confirmation or do we need an additional derivation step to
+  ensure domain separation?
+- Why would we need to generate a fresh signature key pair with each update?
+- Do we need an additional membership tag?<a href="#section-1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="conventions-and-definitions">
+<div id="epoch-identifiers">
 <section id="section-2">
-      <h2 id="name-conventions-and-definitions">
-<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+      <h2 id="name-epoch-identifiers">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-epoch-identifiers" class="section-name selfRef">Epoch identifiers</a>
       </h2>
-<p id="section-2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
-"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
-described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
-appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-1">In MLS, each epoch is identified by a 64 bit unsigned integer, with the epoch
+increasing by one with each commit. The integer identifies epochs uniquely as
+long as there is only one chain of Commits. However, in a decentralized context
+there can be conflicting commits. For example, if two group member send a commit
+at the same time with different subsets of group members receiving a different
+commit first. After processing the newly arrived Commit, all group members would
+be in the same epoch, but in different group states. For subsequently arriving
+messages, it is unclear from the integer designating the epoch, which state the
+message belongs to. In such scenarios it is important that epochs are uniquely
+identifiable.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">When using DMLS, epochs are represented as byte strings of length <code>KDF.Nh</code> (thus
+depending on the group's ciphersuite). The byte string identifying an epoch is
+derived from the epoch's <code>epoch_secret</code> and can thus be learned when creating or
+processing the commit that initiates that epoch.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3"><code>pseudocode
+epoch = DeriveSecret(epoch_secret, "epoch")
+</code><a href="#section-2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="dmls-key-schedule">
+<section id="section-3">
+      <h2 id="name-dmls-key-schedule">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-dmls-key-schedule" class="section-name selfRef">DMLS key schedule</a>
+      </h2>
+<p id="section-3-1">DMLS conceptually modifies the MLS key schedule by enabling the creation of
+multiple <code>init_secret</code>s, where each init secret can be used to initialize a
+subsequent epoch.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">The individual <code>init_secret</code>s are derived through a puncturable pseudorandom
+function (PPRF, <a href="#puncturable-pseudorandom-function" class="auto internal xref">Section 4</a>) keyed by the
+<code>base_init_secret</code>.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<span id="name-the-dmls-key-schedule"></span><figure id="figure-1">
+        <div id="section-3-3.1">
+          <div class="alignLeft art-svg artwork" id="section-3-3.1.1">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="384" width="400" viewBox="0 0 400 384" class="diagram" text-anchor="middle" font-family="monospace" font-size="13px" stroke-linecap="round">
+              <path d="M 152,88 L 152,176" fill="none" stroke="black"></path>
+              <path d="M 152,248 L 152,272" fill="none" stroke="black"></path>
+              <path d="M 152,304 L 152,336" fill="none" stroke="black"></path>
+              <path d="M 152,128 L 176,128" fill="none" stroke="black"></path>
+              <polygon class="arrowhead" points="184,128 172,122.4 172,133.6" fill="black" transform="rotate(0,176,128)"></polygon>
+              <polygon class="arrowhead" points="160,336 148,330.4 148,341.6" fill="black" transform="rotate(90,152,336)"></polygon>
+              <polygon class="arrowhead" points="160,272 148,266.4 148,277.6" fill="black" transform="rotate(90,152,272)"></polygon>
+              <polygon class="arrowhead" points="160,176 148,170.4 148,181.6" fill="black" transform="rotate(90,152,176)"></polygon>
+              <g class="text">
+                <text x="28" y="36">(above</text>
+                <text x="72" y="36">the</text>
+                <text x="108" y="36">same</text>
+                <text x="140" y="36">as</text>
+                <text x="168" y="36">the</text>
+                <text x="200" y="36">MLS</text>
+                <text x="232" y="36">key</text>
+                <text x="288" y="36">schedule)</text>
+                <text x="152" y="52">|</text>
+                <text x="156" y="84">epoch_secret</text>
+                <text x="248" y="132">DeriveSecret(.,</text>
+                <text x="348" y="132">&lt;label&gt;)</text>
+                <text x="192" y="148">=</text>
+                <text x="236" y="148">&lt;secret&gt;</text>
+                <text x="160" y="196">DeriveSecret(.,</text>
+                <text x="284" y="196">"parent_init")</text>
+                <text x="152" y="212">|</text>
+                <text x="164" y="244">parent_init_secret</text>
+                <text x="156" y="292">DeriveChildSecret(.,</text>
+                <text x="296" y="292">"child_init",</text>
+                <text x="316" y="308">commit_confirmation,</text>
+                <text x="304" y="324">GroupContext_[n])</text>
+                <text x="160" y="356">init_secret_[n]</text>
+              </g>
+            </svg><a href="#section-3-3.1.1" class="pilcrow">¶</a>
+</div>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-the-dmls-key-schedule" class="selfRef">The DMLS Key Schedule</a>
+        </figcaption></figure>
+<div class="lang-pseudocode sourcecode" id="section-3-4">
+<pre>
+commit_confirmation = DeriveSecret(path_secret[n], "conf")
+
+DeriveChildSecret(prf_key, label, input_secret, context) =
+  DeriveFSSecret(prf_key, ExpandWithLabel(input_secret, label, context, KDF.Nh))
+</pre><a href="#section-3-4" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="puncturable-pseudorandom-function">
+<section id="section-4">
+      <h2 id="name-puncturable-pseudorandom-fu">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-puncturable-pseudorandom-fu" class="section-name selfRef">Puncturable pseudorandom function</a>
+      </h2>
+<p id="section-4-1">A PPRF allows the derivation of keys in a forward secure way. In particular, a
+PRF that was evaluated with a given key and input can't be evaluated with those
+same parameters again. Storing the original input key thus doesn't harm the
+forward secrecy of (deleted) output keys.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">The MLS Secret Tree as defined in <span>[<a href="#RFC9420" class="cite xref">RFC9420</a>]</span> already represents a PPRF an
+needs to be modified only slightly for the purpose of this document.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-3">In the context of MLS, the Secret Tree has as many leaves as the group has
+members. To derive child init secrets, the same tree is used but with <code>KDF.Nh</code>
+leaves.<a href="#section-4-3" class="pilcrow">¶</a></p>
+<p id="section-4-4">The function <code>DeriveFSSecret(secret, input)</code> thus follows these steps:<a href="#section-4-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4-5.1">
+          <p id="section-4-5.1.1">Check if <code>secret</code> and <code>input</code> are of length <code>KDF.Nh</code><a href="#section-4-5.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-5.2">
+          <p id="section-4-5.2.1">With <code>secret</code> as the root node secret and <code>input</code> as the leaf index, derive
+the direct path nodes and the copath nodes as defined in Section 9 of
+<span>[<a href="#RFC9420" class="cite xref">RFC9420</a>]</span><a href="#section-4-5.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-5.3">
+          <p id="section-4-5.3.1">With <code>leaf_node_secret</code> as the resulting secret compute the final output using
+<code>DeriveSecret(leaf_node_secret, "pprf")</code><a href="#section-4-5.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
 </section>
 </div>
 <div id="security-considerations">
-<section id="section-3">
+<section id="section-5">
       <h2 id="name-security-considerations">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-3-1">TODO Security<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-5-1">TODO Security<a href="#section-5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-4">
+<section id="section-6">
       <h2 id="name-iana-considerations">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-4-1">This document has no IANA actions.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-6-1">This document has no IANA actions.<a href="#section-6-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="sec-normative-references">
-<section id="section-5">
-      <h2 id="name-normative-references">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<div id="sec-combined-references">
+<section id="section-7">
+      <h2 id="name-references">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
+<div id="sec-normative-references">
+<section id="section-7.1">
+        <h3 id="name-normative-references">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
 <dl class="references">
-<dt id="RFC2119">[RFC2119]</dt>
+<dt id="RFC9420">[RFC9420]</dt>
       <dd>
-<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC8174">[RFC8174]</dt>
-    <dd>
-<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Beurdouche, B.</span>, <span class="refAuthor">Robert, R.</span>, <span class="refAuthor">Millican, J.</span>, <span class="refAuthor">Omara, E.</span>, and <span class="refAuthor">K. Cohn-Gordon</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Protocol"</span>, <span class="seriesInfo">RFC 9420</span>, <span class="seriesInfo">DOI 10.17487/RFC9420</span>, <time datetime="2023-07" class="refDate">July 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9420">https://www.rfc-editor.org/rfc/rfc9420</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-7.2">
+        <h3 id="name-informative-references">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="FRCGKA">[FRCGKA]</dt>
+      <dd>
+<span class="refAuthor">Alwen, J.</span>, <span class="refAuthor">Mularczyk, M.</span>, and <span class="refAuthor">Y. Tselekounis</span>, <span class="refTitle">"Fork-Resilient Continuous Group Key Agreement"</span>, <time datetime="2024-02-22" class="refDate">22 February 2024</time>, <span>&lt;<a href="https://eprint.iacr.org/2023/394.pdf">https://eprint.iacr.org/2023/394.pdf</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
 </section>
 </div>
 <div id="acknowledgments">
