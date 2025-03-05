@@ -122,8 +122,8 @@ function (PPRF, {{puncturable-pseudorandom-function}}) keyed by the
                    parent_init_secret
                           |
                           V
-                 DeriveChildSecret(., "child_init", 
-                          |          commit_confirmation, 
+                 DeriveChildSecret(., "child_init",
+                          |          commit_confirmation,
                           |          GroupContext_[n])
                           V
                     init_secret_[n]
@@ -133,7 +133,7 @@ function (PPRF, {{puncturable-pseudorandom-function}}) keyed by the
 ~~~ pseudocode
 commit_confirmation = DeriveSecret(path_secret[n], "conf")
 
-DeriveChildSecret(prf_key, label, input_secret, context) = 
+DeriveChildSecret(prf_key, label, input_secret, context) =
   DeriveFSSecret(prf_key, ExpandWithLabel(input_secret, label, context, KDF.Nh))
 ~~~
 
