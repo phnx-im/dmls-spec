@@ -34,7 +34,7 @@ normative:
 informative:
   FRCGKA:
     target: https://eprint.iacr.org/2023/394.pdf
-    title: "Fork-Resilient Continuous Group Key Agreement
+    title: "Fork-Resilient Continuous Group Key Agreement"
     date: 2024-02-22
     author:
       - name: Joël Alwen
