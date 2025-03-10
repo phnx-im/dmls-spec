@@ -160,9 +160,87 @@ The function `DeriveFSSecret(secret, input)` thus follows these steps:
 - With `leaf_node_secret` as the resulting secret compute the final output using
   `DeriveSecret(leaf_node_secret, "pprf")`
 
+# State consolidation
+
+The changes to MLS outlined above allow the processing of multiple commits for
+each epoch with improved forward secrecy. However, once a fork was created, they
+do not help in returning group members to a single, agreed-upon group state.
+
+There is no one semantic to consolidate forks that is optimal for all given
+applications. Even more so if the application uses extensions that store
+additional data in the group's context.
+
+This section thus details a simple state-consolitation procedure that focuses on
+consolidating group membership and key material only. To keep it simple, our
+approach makes a few assumptions.
+
+TODO: The following is work in progress. While the assumptions won't disappear
+entirely, they will become weaker in future iterations.
+
+- One group forked at epoch e_i
+- Only one partition, half of the group on one side, the other on the other side
+- Both sides of the partition have a server that helps them agree on commit
+  ordering (imagine a netsplit in a federated approach with only two servers
+  involved)
+- The two servers involved coordinate in allowing commits/preventing forks
+- Neither clients nor servers keep around old messages, but do keep around old
+  group states s.t. they can process old messages
+- No insider attacks, i.e. no insider is trying to create a fork and then make
+  the others accept the new state
+- No access control: All parties can add and remove members as they please
+- KeyPackages are accessible: All parties can access KeyPackages of all other
+  parties
+
+Open Questions:
+- How to determine which fork wins, i.e. which fork is merged into which?
+  Options:
+  - Arbitrary: The fork with the alphanumerically highest transcript hash wins
+- Is it mandatory that the consolitation algorithm is deterministic s.t.
+  everyone can compute it and arrive at the same result?
+
+Timeline:
+- Alice, Alan, Bob and Betty are in a group
+- Alice and Alan on server A, Bob and Betty on server B
+- There is a disconnect between servers A and B
+- All group members keep sending messages
+- Alice adds Albert to the group
+- Betty removes Bob from the group
+- The servers reconnect
+- All parties receive and process all messages from the other side
+- All parties now have two forks of the same group
+- One party (say Alice) starts the consolitation procedure (see below)
+
+## Consolidation algorithm
+
+- Given two forks, choose the one with the alphanumerically larger transcript hash
+- On the losing fork, create a commit with a proposal that indicates that this
+  fork is closed
+- On the winning fork, create a commit that consolidates the group membership of
+  both forks:
+  - If a member was removed in the losing fork but not on the winning fork,
+    remove it in the commit
+  - If a member was added in the losing fork, but not on the winning fork, add
+    it in the commit
+
+Open Questions:
+- What if a member was removed in both forks and then re-added in the winning
+  fork? Should it still be removed in the consolidating commit? Resolving this
+  is tricky if not everyone has the message traces for both forks.
+- What if there is no overlap in members? In that case, there is no way to
+  consolidate, because no one can create a commit in the other fork.
+  - Maybe that's okay? In that case, there's not much to consolidate. Should the
+    losing fork be closed? Or should both forks live on? Might depend on the
+    application.
+
+
+
+
 # Security Considerations
 
 TODO Security
+
+- Note that while the PPRF gives you FS for init secrets, you also need to keep
+  the secret state of old RatchetTree states around, thus damaging their FS
 
 
 # IANA Considerations
