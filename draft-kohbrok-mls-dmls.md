@@ -3,7 +3,7 @@ title: "Decentralized Messaging Layer Security"
 abbrev: "DMLS"
 category: info
 
-docname: draft-kohbrok-mls-decentralized-mls-latest
+docname: draft-kohbrok-mls-dmls-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
@@ -21,7 +21,7 @@ venue:
   mail: "mls@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/mls/"
   github: "phnx-im/dmls-spec"
-  latest: "https://phnx-im.github.io/dmls-spec/draft-kohbrok-mls-decentralized-mls.html"
+  latest: "https://phnx-im.github.io/dmls-spec/draft-kohbrok-mls-dmls.html"
 
 author:
  -
