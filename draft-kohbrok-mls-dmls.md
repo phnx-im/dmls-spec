@@ -189,13 +189,13 @@ The function `DeriveFSSecret(secret, input)` thus follows these steps:
 
 As outlined in {{security-considerations}} DMLS makes it safer to retain old MLS
 group states. As such, it enables an _eventually consistent_ delivery service as
-described in Section 5.2.2. of {{RFC9750}}, i.e. one that tolerates out-of-order
+described in Section 5.2.2. of {{!RFC9750}}, i.e. one that tolerates out-of-order
 delivery of messages. This in turn allows the use of DMLS in applications with
 highly decentralized architectures.
 
 The lack of a strong agreement on message order, however, leads to the various
 state-agreement problems inherent to distributed systems and independent of
-(D)MLS. 
+(D)MLS.
 
 More concretely, applications need to specify the following.
 
@@ -213,7 +213,7 @@ answered in a decentralized scenario.
 ## Example: Federated scenario with server support
 
 The architecture of the first application consists of a federation of servers,
-where each server serves one or more clients. 
+where each server serves one or more clients.
 
 The servers can queue messages for their clients and determine the order of
 handshake messages for the groups their clients are in.
