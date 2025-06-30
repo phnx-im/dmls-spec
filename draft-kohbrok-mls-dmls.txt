@@ -4,8 +4,8 @@
 
 Messaging Layer Security                                      K. Kohbrok
 Internet-Draft                                               Phoenix R&D
-Intended status: Informational                             17 March 2025
-Expires: 18 September 2025
+Intended status: Informational                              30 June 2025
+Expires: 1 January 2026
 
 
                  Decentralized Messaging Layer Security
@@ -13,20 +13,21 @@ Expires: 18 September 2025
 
 Abstract
 
-   Messaging Layer Security provides strong end-to-end security
+   Messaging Layer Security (MLS) provides strong end-to-end security
    guarantees for group messaging including Forward Secrecy (FS) and
-   Post-Compromise Security (PCS).  However, MLS requires a Delivery
-   Service (DS) to facilitate agreement between group members on the
-   order of Commit messages.  In decentralized settings the only way to
-   implement a functional DS is to require group members to retain key
-   material so they can process commits out-of-order.  Retaining key
-   material this way is in violation of the MLS deletion schedule and
-   significantly reduces the FS of the protocol.  This draft specifies
-   Decentralized MLS, based on the the Fork-Resilient Continuous Group
-   Key Agreement protocol FREEK proposed by Alwen et al.  [FRCGKA].  In
-   essence, DMLS extends MLS such that key material can be retained to
-   process Commits out-of-order with minimal losses to FS, thus allowing
-   safer deployment in decentralized environments.
+   Post-Compromise Security (PCS).  MLS requires a Delivery Service (DS)
+   component to facilitate agreement between group members on the order
+   of Commit messages.  In decentralized settings without an
+   authoritative entity to enforce ordering, group members will likely
+   have to retain key material so they can process commits out-of-order.
+
+   Retaining key material, however, significantly reduces the FS of the
+   protocol.  This draft specifies Decentralized MLS (DMLS), based on
+   the the Fork-Resilient Continuous Group Key Agreement protocol FREEK
+   proposed by Alwen et al.  [FRCGKA].  In essence, DMLS extends MLS
+   such that key material can be retained to process Commits out-of-
+   order with recuded impact to FS, thus allowing safer deployment in
+   decentralized environments.
 
 About This Document
 
@@ -60,7 +61,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 18 September 2025.
+   This Internet-Draft will expire on 1 January 2026.
 
 Copyright Notice
 
@@ -80,61 +81,87 @@ Table of Contents
 
    1.  Introduction
    2.  Epoch identifiers
-   3.  DMLS key schedule
-   4.  Puncturable pseudorandom function
-   5.  State consolidation
-     5.1.  Consolidation algorithm
-   6.  Security Considerations
-   7.  IANA Considerations
-   8.  References
-     8.1.  Normative References
-     8.2.  Informative References
+   3.  DMLS Messages
+   4.  DMLS key schedule
+   5.  Puncturable pseudorandom function
+   6.  State management
+     6.1.  Example: Federated scenario with server support
+       6.1.1.  Server behaviour
+       6.1.2.  Client behaviour
+   7.  Security Considerations
+   8.  IANA Considerations
+   9.  References
+     9.1.  Normative References
+     9.2.  Informative References
    Acknowledgments
    Author's Address
 
 1.  Introduction
 
-   TODO: Introduction
+   ...
 
-   Open Questions: - Why do removed members need to receive their commit
-   confirmation from their removers?  They should be able to process the
-   removing commit without the init secret in the first place. - Is it
-   safe to use the commit secret regularly in the key schedule _and_ to
-   derive the commit confirmation or do we need an additional derivation
-   step to ensure domain separation? - Why would we need to generate a
-   fresh signature key pair with each update? - Do we need an additional
-   membership tag?
+   DMLS allows group members to keep around old group state a little
+   more safely, because the init secret of old epoch states is
+   punctured.  However, keeping an old epoch state around is still not
+   as safe as deleting it in the first place.  See Section 7 for more
+   details.
+
+   While DMLS is thus safer to use in scenarios where members must be
+   able to process old commits, it is still not as safe as the use of
+   vanilla MLS with its strict deletion schedule.
+
+   Even when using DMLS, applications should take care that group state
+   forks are short-lived and group members (and/or assisting servers)
+   endeavour to resolve forks as soon as possible.
+
+   In contrast scenarios should be avoided where multiple forks are
+   long-lived.  For example, if two or more parts of a group are not in
+   contact with one-another and effectively run their own fork of the
+   same group.
 
 2.  Epoch identifiers
 
    In MLS, each epoch is identified by a 64 bit unsigned integer, with
    the epoch increasing by one with each commit.  The integer identifies
    epochs uniquely as long as there is only one chain of Commits.
-   However, in a decentralized context there can be conflicting commits.
-   For example, if two group member send a commit at the same time with
-   different subsets of group members receiving a different commit
-   first.  After processing the newly arrived Commit, all group members
-   would be in the same epoch, but in different group states.  For
-   subsequently arriving messages, it is unclear from the integer
-   designating the epoch, which state the message belongs to.  In such
-   scenarios it is important that epochs are uniquely identifiable.
+   However, in a decentralized context there can be multiple commits for
+   the same epoch, which means that an integer is not sufficient to
+   uniquely identify an epoch.  For example, if two group member send a
+   commit at the same time with different subsets of group members
+   receiving a different commit first.  After processing the newly
+   arrived Commit, all group members would be in the same epoch, but in
+   different group states.  For subsequently arriving messages, it is
+   unclear from the integer designating the epoch, which state the
+   message belongs to.  In such scenarios it is important that epochs
+   are uniquely identifiable.
 
-   When using DMLS, epochs are represented as byte strings of length
-   KDF.Nh (thus depending on the group's ciphersuite).  The byte string
-   identifying an epoch is derived from the epoch's epoch_secret and can
-   thus be learned when creating or processing the commit that initiates
-   that epoch.
+   The dmls_epoch can be used for this purpose.
 
-   pseudocode epoch = DeriveSecret(epoch_secret, "epoch")
+   pseudocode dmls_epoch = DeriveSecret(epoch_secret, "epoch")
 
-3.  DMLS key schedule
+   A dmls_epoch is represented by byte strings of length KDF.Nh (thus
+   depending on the group's ciphersuite).  The byte string identifying
+   an epoch is derived from the epoch's epoch_secret.
 
-   DMLS conceptually modifies the MLS key schedule by enabling the
-   creation of multiple init_secrets, where each init secret can be used
-   to initialize a subsequent epoch.
+3.  DMLS Messages
+
+   As regular MLSMessages only contain integer-based epoch identifiers,
+   this section introduces DMLSMessages, a simple wrapper that adds a
+   dmls_epoch header to an MLSMessage.
+
+   struct {
+     MLSMessage message;
+     opaque dmls_epoch<V>;
+   } DMLSMessage
+
+4.  DMLS key schedule
+
+   DMLS uses a modified version of the MLS key schedule that allows the
+   derivation of multiple init_secrets, where each init secret can be
+   used to initialize a subsequent epoch.
 
    The individual init_secrets are derived through a puncturable
-   pseudorandom function (PPRF, Section 4) keyed by the
+   pseudorandom function (PPRF, see Section 5) keyed by the
    base_init_secret.
 
            (above the same as the MLS key schedule)
@@ -166,7 +193,7 @@ Table of Contents
    DeriveChildSecret(prf_key, label, input_secret, context) =
      DeriveFSSecret(prf_key, ExpandWithLabel(input_secret, label, context, KDF.Nh))
 
-4.  Puncturable pseudorandom function
+5.  Puncturable pseudorandom function
 
    A PPRF allows the derivation of keys in a forward secure way.  In
    particular, a PRF that was evaluated with a given key and input can't
@@ -193,112 +220,143 @@ Table of Contents
    *  With leaf_node_secret as the resulting secret compute the final
       output using DeriveSecret(leaf_node_secret, "pprf")
 
-5.  State consolidation
+6.  State management
 
-   The changes to MLS outlined above allow the processing of multiple
-   commits for each epoch with improved forward secrecy.  However, once
-   a fork was created, they do not help in returning group members to a
-   single, agreed-upon group state.
+   As outlined in Section 7 DMLS makes it safer to retain old MLS group
+   states.  As such, it enables an _eventually consistent_ delivery
+   service as described in Section 5.2.2. of [RFC9750], i.e. one that
+   tolerates out-of-order delivery of messages.  This in turn allows the
+   use of DMLS in applications with highly decentralized architectures.
 
-   There is no one semantic to consolidate forks that is optimal for all
-   given applications.  Even more so if the application uses extensions
-   that store additional data in the group's context.
+   The lack of a strong agreement on message order, however, leads to
+   the various state-agreement problems inherent to distributed systems
+   and independent of (D)MLS.
 
-   This section thus details a simple state-consolitation procedure that
-   focuses on consolidating group membership and key material only.  To
-   keep it simple, our approach makes a few assumptions.
+   More concretely, applications need to specify the following.
 
-   TODO: The following is work in progress.  While the assumptions won't
-   disappear entirely, they will become weaker in future iterations.
+   *  What fork should a client choose when sending a message?
 
-   *  One group forked at epoch e_i
+   *  When can an old epoch state be safely deleted?
 
-   *  Only one partition, half of the group on one side, the other on
-      the other side
+   *  When can a fork be safely consolidated and deleted?
 
-   *  Both sides of the partition have a server that helps them agree on
-      commit ordering (imagine a netsplit in a federated approach with
-      only two servers involved)
+   *  How should two forks be consolidated?
 
-   *  The two servers involved coordinate in allowing commits/preventing
-      forks
+   The answers to these questions depend on the application's specific
+   architecture and other requirements and are thus outside of the scope
+   of this document.
 
-   *  Neither clients nor servers keep around old messages, but do keep
-      around old group states s.t. they can process old messages
+   The remainder of this section shows an example of how these questions
+   can be answered in a decentralized scenario.
 
-   *  No insider attacks, i.e. no insider is trying to create a fork and
-      then make the others accept the new state
+6.1.  Example: Federated scenario with server support
 
-   *  No access control: All parties can add and remove members as they
-      please
+   The architecture of the first application consists of a federation of
+   servers, where each server serves one or more clients.
 
-   *  KeyPackages are accessible: All parties can access KeyPackages of
-      all other parties
+   The servers can queue messages for their clients and determine the
+   order of handshake messages for the groups their clients are in.
 
-   Open Questions: - How to determine which fork wins, i.e. which fork
-   is merged into which?  Options: - Arbitrary: The fork with the
-   alphanumerically highest transcript hash wins - Is it mandatory that
-   the consolitation algorithm is deterministic s.t.  everyone can
-   compute it and arrive at the same result?
+   In this system, forks can only occur if a subset of servers lose
+   connectivity from the rest.
 
-   Timeline: - Alice, Alan, Bob and Betty are in a group - Alice and
-   Alan on server A, Bob and Betty on server B - There is a disconnect
-   between servers A and B - All group members keep sending messages -
-   Alice adds Albert to the group - Betty removes Bob from the group -
-   The servers reconnect - All parties receive and process all messages
-   from the other side - All parties now have two forks of the same
-   group - One party (say Alice) starts the consolitation procedure (see
-   below)
+6.1.1.  Server behaviour
 
-5.1.  Consolidation algorithm
+   The exact nature of the algorithm used by the servers to agree on a
+   commit for the next epoch is out of scope for this example.  However,
+   the requirement of such an algorithm are:
 
-   *  Given two forks, choose the one with the alphanumerically larger
-      transcript hash
+   *  Agreement: If one or more commits reach one or more servers at the
+      same time the algorithm should facilitate agreement between the
+      servers that can currently reach one-another.
 
-   *  On the losing fork, create a commit with a proposal that indicates
-      that this fork is closed
+   *  Netsplit detection: Servers should be able to detect if the
+      federation of servers has split.  If connections between
+      individual servers fail, other servers can act as forwarding
+      proxies between the disconnected servers.
 
-   *  On the winning fork, create a commit that consolidates the group
-      membership of both forks:
+   If a netsplit is detected, servers will fack back on agreement within
+   their subgroup of servers.  Agreed-upon commits and other group
+   messages are buffered for later fan-out to the rest of the
+   federation.
 
-      -  If a member was removed in the losing fork but not on the
-         winning fork, remove it in the commit
+   If a netsplit ends, all messages buffered during the netsplit are
+   delivered to their respective destinations.
 
-      -  If a member was added in the losing fork, but not on the
-         winning fork, add it in the commit
+   If a fork has occurred during the netsplit, the fork with the
+   lexicographically higher confirmation tag in the first differing
+   commit wins and the servers restart their agreement algorithm with
+   respect to that fork.
 
-   Open Questions: - What if a member was removed in both forks and then
-   re-added in the winning fork?  Should it still be removed in the
-   consolidating commit?  Resolving this is tricky if not everyone has
-   the message traces for both forks. - What if there is no overlap in
-   members?  In that case, there is no way to consolidate, because no
-   one can create a commit in the other fork.  - Maybe that's okay?  In
-   that case, there's not much to consolidate.  Should the losing fork
-   be closed?  Or should both forks live on?  Might depend on the
-   application.
+   If there was another netsplit during a netsplit, the same rules
+   apply.
 
-6.  Security Considerations
+   When fanning out group messages to their clients, servers include a
+   flag to indicate whether the old commit state should be retained due
+   to an ongoing netsplit.
 
-   TODO Security
+6.1.2.  Client behaviour
 
-   *  Note that while the PPRF gives you FS for init secrets, you also
-      need to keep the secret state of old RatchetTree states around,
-      thus damaging their FS
+   Clients generally only have one fork of a given group.  If they send
+   a message, that's the fork they choose.
 
-7.  IANA Considerations
+   Epoch states are generally deleted immediately after processing the
+   next commit, except when the server indicates that the epoch state
+   should be retained.
+
+   When a client receives a commit for an old epoch (i.e. if a fork
+   occurs), it retains the fork where the first differing commit has the
+   lexicographically higher confirmation tag.
+
+   To keep the scenario simple, losing forks are simply deleted.
+
+7.  Security Considerations
+
+   The use of a PPRF to derive init secrets for new epochs significantly
+   improves forward secrecy in scenarios where clients need to be able
+   to process multiple commits for a given epoch.
+
+   However, PPRF only improves forward secrecy for the init secret.
+   Group members must still delay the deletion of other secrets such as
+   the (private) decryption keys for the nodes in the ratchet tree.
+   This delay in deletion compromises the forward secrecy of the
+   protocol.  Conversely, the fact that other group members might
+   encrypt to those keys in turn weakens the protocol's post-compromise
+   security.
+
+   It is thus still advisable to delete old epoch states as soon as the
+   functional requirements of the application allows it.
+
+   A rule that will be safe for most applications, for example, is that
+   an old epoch state can be deleted once each group member has sent a
+   commit on at least one fork "upstream" of that epoch state.  This
+   signals that all group members have agreed to continue using this
+   particular fork of the group state.
+
+   For effective forward secrecy and post-compromise security it is thus
+   advisable to choose a state management algorithm where members
+   converge on a shared fork rather than continuously using different
+   forks of the same group.
+
+8.  IANA Considerations
 
    This document has no IANA actions.
 
-8.  References
+9.  References
 
-8.1.  Normative References
+9.1.  Normative References
 
    [RFC9420]  Barnes, R., Beurdouche, B., Robert, R., Millican, J.,
               Omara, E., and K. Cohn-Gordon, "The Messaging Layer
               Security (MLS) Protocol", RFC 9420, DOI 10.17487/RFC9420,
               July 2023, <https://www.rfc-editor.org/rfc/rfc9420>.
 
-8.2.  Informative References
+   [RFC9750]  Beurdouche, B., Rescorla, E., Omara, E., Inguva, S., and
+              A. Duric, "The Messaging Layer Security (MLS)
+              Architecture", RFC 9750, DOI 10.17487/RFC9750, April 2025,
+              <https://www.rfc-editor.org/rfc/rfc9750>.
+
+9.2.  Informative References
 
    [FRCGKA]   Alwen, J., Mularczyk, M., and Y. Tselekounis, "Fork-
               Resilient Continuous Group Key Agreement", 22 February
