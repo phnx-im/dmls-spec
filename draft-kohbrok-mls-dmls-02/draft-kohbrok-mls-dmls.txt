@@ -4,8 +4,8 @@
 
 Messaging Layer Security                                      K. Kohbrok
 Internet-Draft                                               Phoenix R&D
-Intended status: Informational                              30 June 2025
-Expires: 1 January 2026
+Intended status: Informational                         15 September 2025
+Expires: 19 March 2026
 
 
                  Decentralized Messaging Layer Security
@@ -61,7 +61,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 January 2026.
+   This Internet-Draft will expire on 19 March 2026.
 
 Copyright Notice
 
