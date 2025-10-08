@@ -48,13 +48,14 @@ informative:
 
 Messaging Layer Security (MLS) provides strong end-to-end security guarantees
 for group messaging including Forward Secrecy (FS) and Post-Compromise Security
-(PCS). MLS requires a Delivery Service (DS) component to facilitate agreement
-between group members on the order of Commit messages. In decentralized settings
-without an authoritative entity to enforce ordering, group members will likely
-have to retain key material so they can process commits out-of-order.
+(PCS). To facilitate agreement between group members, MLS requires a Delivery
+Service (DS) component that orders of the handshake messages (Commits) that
+allow changes to the group state. In decentralized settings without a central
+authoritative entity to enforce ordering, group members will likely have to
+retain key material so they can process Commits out-of-order.
 
 Retaining key material, however, significantly reduces the FS of the protocol.
-This draft specifies Decentralized MLS (DMLS), based on the the Fork-Resilient
+This draft specifies Decentralized MLS (DMLS), based on the Fork-Resilient
 Continuous Group Key Agreement protocol FREEK proposed by Alwen et al.
 {{FRCGKA}}. In essence, DMLS extends MLS such that key material can be retained
 to process Commits out-of-order with recuded impact to FS, thus allowing safer
@@ -103,15 +104,15 @@ The `dmls_epoch` can be used for this purpose.
 dmls_epoch = DeriveSecret(epoch_secret, "epoch")
 ```
 
-A dmls_epoch is represented by byte strings of length `KDF.Nh` (thus depending
+A `dmls_epoch` is represented by byte strings of length `KDF.Nh` (thus depending
 on the group's ciphersuite). The byte string identifying an epoch is derived
 from the epoch's `epoch_secret`.
 
 # DMLS Messages
 
 As regular MLSMessages only contain integer-based epoch identifiers, this
-section introduces DMLSMessages, a simple wrapper that adds a dmls_epoch header
-to an MLSMessage.
+section introduces DMLSMessages, a simple wrapper that adds a `dmls_epoch`
+header to an MLSMessage.
 
 ~~~ tls
 struct {
@@ -119,6 +120,9 @@ struct {
   opaque dmls_epoch<V>;
 } DMLSMessage
 ~~~
+
+DMLSMessages MUST NOT contain MLSMessages with WireFormat other than
+`mls_public_message` and `mls_private_message`.
 
 # DMLS key schedule
 
