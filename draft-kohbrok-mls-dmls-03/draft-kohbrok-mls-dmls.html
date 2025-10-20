@@ -9,36 +9,36 @@
 <meta content="
        Messaging Layer Security (MLS) provides strong end-to-end security guarantees
 for group messaging including Forward Secrecy (FS) and Post-Compromise Security
-(PCS). MLS requires a Delivery Service (DS) component to facilitate agreement
-between group members on the order of Commit messages. In decentralized settings
-without an authoritative entity to enforce ordering, group members will likely
-have to retain key material so they can process commits out-of-order. 
+(PCS). To facilitate agreement between group members, MLS requires a Delivery
+Service (DS) component that orders of the handshake messages (Commits) that
+allow changes to the group state. In decentralized settings without a central
+authoritative entity to enforce ordering, group members will likely have to
+retain key material so they can process Commits out-of-order. 
        Retaining key material, however, significantly reduces the FS of the protocol.
-This draft specifies Decentralized MLS (DMLS), based on the the Fork-Resilient
+This draft specifies Decentralized MLS (DMLS), based on the Fork-Resilient
 Continuous Group Key Agreement protocol FREEK proposed by Alwen et al.
  . In essence, DMLS extends MLS such that key material can be retained
 to process Commits out-of-order with recuded impact to FS, thus allowing safer
 deployment in decentralized environments. 
     " name="description">
-<meta content="xml2rfc 3.30.1" name="generator">
+<meta content="xml2rfc 3.31.0" name="generator">
 <meta content="security" name="keyword">
 <meta content="authenticated key exchange" name="keyword">
 <meta content="end-to-end encryption" name="keyword">
 <meta content="draft-kohbrok-mls-dmls-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.30.1
-    Python 3.12.11
+  xml2rfc 3.31.0
+    Python 3.12.12
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
     Jinja2 3.1.6
     lxml 5.3.1
-    platformdirs 4.4.0
+    platformdirs 4.5.0
     pycountry 24.6.1
     PyYAML 6.0.2
     requests 2.32.5
-    setuptools 80.9.0
-    wcwidth 0.2.13
+    wcwidth 0.2.14
 -->
 <link href="draft-kohbrok-mls-dmls.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1057,11 +1057,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">DMLS</td>
-<td class="right">September 2025</td>
+<td class="right">October 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kohbrok</td>
-<td class="center">Expires 19 March 2026</td>
+<td class="center">Expires 23 April 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1074,12 +1074,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-kohbrok-mls-dmls-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-09-15" class="published">15 September 2025</time>
+<time datetime="2025-10-20" class="published">20 October 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-03-19">19 March 2026</time></dd>
+<dd class="expires"><time datetime="2026-04-23">23 April 2026</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1094,12 +1094,13 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">Messaging Layer Security (MLS) provides strong end-to-end security guarantees
 for group messaging including Forward Secrecy (FS) and Post-Compromise Security
-(PCS). MLS requires a Delivery Service (DS) component to facilitate agreement
-between group members on the order of Commit messages. In decentralized settings
-without an authoritative entity to enforce ordering, group members will likely
-have to retain key material so they can process commits out-of-order.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+(PCS). To facilitate agreement between group members, MLS requires a Delivery
+Service (DS) component that orders of the handshake messages (Commits) that
+allow changes to the group state. In decentralized settings without a central
+authoritative entity to enforce ordering, group members will likely have to
+retain key material so they can process Commits out-of-order.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 <p id="section-abstract-2">Retaining key material, however, significantly reduces the FS of the protocol.
-This draft specifies Decentralized MLS (DMLS), based on the the Fork-Resilient
+This draft specifies Decentralized MLS (DMLS), based on the Fork-Resilient
 Continuous Group Key Agreement protocol FREEK proposed by Alwen et al.
 <span>[<a href="#FRCGKA" class="cite xref">FRCGKA</a>]</span>. In essence, DMLS extends MLS such that key material can be retained
 to process Commits out-of-order with recuded impact to FS, thus allowing safer
@@ -1140,7 +1141,7 @@ deployment in decentralized environments.<a href="#section-abstract-2" class="pi
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 19 March 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 23 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1185,43 +1186,27 @@ deployment in decentralized environments.<a href="#section-abstract-2" class="pi
             <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-puncturable-pseudorandom-fu" class="internal xref">Puncturable pseudorandom function</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-state-management" class="internal xref">State management</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-example-federated-scenario-" class="internal xref">Example: Federated scenario with server support</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1.2.1">
-                    <p id="section-toc.1-1.6.2.1.2.1.1"><a href="#section-6.1.1" class="auto internal xref">6.1.1</a>.  <a href="#name-server-behaviour" class="internal xref">Server behaviour</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1.2.2">
-                    <p id="section-toc.1-1.6.2.1.2.2.1"><a href="#section-6.1.2" class="auto internal xref">6.1.2</a>.  <a href="#name-client-behaviour" class="internal xref">Client behaviour</a></p>
-</li>
-                </ul>
-</li>
-            </ul>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
-</li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-references" class="internal xref">References</a></p>
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-references" class="internal xref">References</a></p>
 <ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
-                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
-                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
 </li>
             </ul>
 </li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
 </li>
-          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1236,7 +1221,7 @@ deployment in decentralized environments.<a href="#section-abstract-2" class="pi
 <p id="section-1-2">DMLS allows group members to keep around old group state a little more safely,
 because the init secret of old epoch states is punctured. However, keeping an
 old epoch state around is still not as safe as deleting it in the first place.
-See <a href="#security-considerations" class="auto internal xref">Section 7</a> for more details.<a href="#section-1-2" class="pilcrow">¶</a></p>
+See <a href="#security-considerations" class="auto internal xref">Section 6</a> for more details.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">While DMLS is thus safer to use in scenarios where members must be able to
 process old commits, it is still not as safe as the use of vanilla MLS with its
 strict deletion schedule.<a href="#section-1-3" class="pilcrow">¶</a></p>
@@ -1268,7 +1253,7 @@ that epochs are uniquely identifiable.<a href="#section-2-1" class="pilcrow">¶<
 <p id="section-2-3"><code>pseudocode
 dmls_epoch = DeriveSecret(epoch_secret, "epoch")
 </code><a href="#section-2-3" class="pilcrow">¶</a></p>
-<p id="section-2-4">A dmls_epoch is represented by byte strings of length <code>KDF.Nh</code> (thus depending
+<p id="section-2-4">A <code>dmls_epoch</code> is represented by byte strings of length <code>KDF.Nh</code> (thus depending
 on the group's ciphersuite). The byte string identifying an epoch is derived
 from the epoch's <code>epoch_secret</code>.<a href="#section-2-4" class="pilcrow">¶</a></p>
 </section>
@@ -1279,8 +1264,8 @@ from the epoch's <code>epoch_secret</code>.<a href="#section-2-4" class="pilcrow
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-dmls-messages" class="section-name selfRef">DMLS Messages</a>
       </h2>
 <p id="section-3-1">As regular MLSMessages only contain integer-based epoch identifiers, this
-section introduces DMLSMessages, a simple wrapper that adds a dmls_epoch header
-to an MLSMessage.<a href="#section-3-1" class="pilcrow">¶</a></p>
+section introduces DMLSMessages, a simple wrapper that adds a <code>dmls_epoch</code>
+header to an MLSMessage.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <div class="lang-tls sourcecode" id="section-3-2">
 <pre>
 struct {
@@ -1289,6 +1274,8 @@ struct {
 } DMLSMessage
 </pre><a href="#section-3-2" class="pilcrow">¶</a>
 </div>
+<p id="section-3-3">DMLSMessages MUST NOT contain MLSMessages with WireFormat other than
+<code>mls_public_message</code> and <code>mls_private_message</code>.<a href="#section-3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="dmls-key-schedule">
@@ -1386,161 +1373,61 @@ the direct path nodes and the copath nodes as defined in Section 9 of
       </ul>
 </section>
 </div>
-<div id="state-management">
-<section id="section-6">
-      <h2 id="name-state-management">
-<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-state-management" class="section-name selfRef">State management</a>
-      </h2>
-<p id="section-6-1">As outlined in <a href="#security-considerations" class="auto internal xref">Section 7</a> DMLS makes it safer to retain old MLS
-group states. As such, it enables an <em>eventually consistent</em> delivery service as
-described in Section 5.2.2. of <span>[<a href="#RFC9750" class="cite xref">RFC9750</a>]</span>, i.e. one that tolerates out-of-order
-delivery of messages. This in turn allows the use of DMLS in applications with
-highly decentralized architectures.<a href="#section-6-1" class="pilcrow">¶</a></p>
-<p id="section-6-2">The lack of a strong agreement on message order, however, leads to the various
-state-agreement problems inherent to distributed systems and independent of
-(D)MLS.<a href="#section-6-2" class="pilcrow">¶</a></p>
-<p id="section-6-3">More concretely, applications need to specify the following.<a href="#section-6-3" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-6-4.1">
-          <p id="section-6-4.1.1">What fork should a client choose when sending a message?<a href="#section-6-4.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-6-4.2">
-          <p id="section-6-4.2.1">When can an old epoch state be safely deleted?<a href="#section-6-4.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-6-4.3">
-          <p id="section-6-4.3.1">When can a fork be safely consolidated and deleted?<a href="#section-6-4.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-6-4.4">
-          <p id="section-6-4.4.1">How should two forks be consolidated?<a href="#section-6-4.4.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-<p id="section-6-5">The answers to these questions depend on the application's specific architecture
-and other requirements and are thus outside of the scope of this document.<a href="#section-6-5" class="pilcrow">¶</a></p>
-<p id="section-6-6">The remainder of this section shows an example of how these questions can be
-answered in a decentralized scenario.<a href="#section-6-6" class="pilcrow">¶</a></p>
-<div id="example-federated-scenario-with-server-support">
-<section id="section-6.1">
-        <h3 id="name-example-federated-scenario-">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-example-federated-scenario-" class="section-name selfRef">Example: Federated scenario with server support</a>
-        </h3>
-<p id="section-6.1-1">The architecture of the first application consists of a federation of servers,
-where each server serves one or more clients.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-<p id="section-6.1-2">The servers can queue messages for their clients and determine the order of
-handshake messages for the groups their clients are in.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
-<p id="section-6.1-3">In this system, forks can only occur if a subset of servers lose connectivity
-from the rest.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
-<div id="server-behaviour">
-<section id="section-6.1.1">
-          <h4 id="name-server-behaviour">
-<a href="#section-6.1.1" class="section-number selfRef">6.1.1. </a><a href="#name-server-behaviour" class="section-name selfRef">Server behaviour</a>
-          </h4>
-<p id="section-6.1.1-1">The exact nature of the algorithm used by the servers to agree on a commit for
-the next epoch is out of scope for this example. However, the requirement of
-such an algorithm are:<a href="#section-6.1.1-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-6.1.1-2.1">
-              <p id="section-6.1.1-2.1.1">Agreement: If one or more commits reach one or more servers at the same time
-the algorithm should facilitate agreement between the servers that can
-currently reach one-another.<a href="#section-6.1.1-2.1.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-6.1.1-2.2">
-              <p id="section-6.1.1-2.2.1">Netsplit detection: Servers should be able to detect if the federation of
-servers has split. If connections between individual servers fail, other
-servers can act as forwarding proxies between the disconnected servers.<a href="#section-6.1.1-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          </ul>
-<p id="section-6.1.1-3">If a netsplit is detected, servers will fack back on agreement within their
-subgroup of servers. Agreed-upon commits and other group messages are buffered
-for later fan-out to the rest of the federation.<a href="#section-6.1.1-3" class="pilcrow">¶</a></p>
-<p id="section-6.1.1-4">If a netsplit ends, all messages buffered during the netsplit are delivered to
-their respective destinations.<a href="#section-6.1.1-4" class="pilcrow">¶</a></p>
-<p id="section-6.1.1-5">If a fork has occurred during the netsplit, the fork with the lexicographically
-higher confirmation tag in the first differing commit wins and the servers
-restart their agreement algorithm with respect to that fork.<a href="#section-6.1.1-5" class="pilcrow">¶</a></p>
-<p id="section-6.1.1-6">If there was another netsplit during a netsplit, the same rules apply.<a href="#section-6.1.1-6" class="pilcrow">¶</a></p>
-<p id="section-6.1.1-7">When fanning out group messages to their clients, servers include a flag to
-indicate whether the old commit state should be retained due to an ongoing
-netsplit.<a href="#section-6.1.1-7" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="client-behaviour">
-<section id="section-6.1.2">
-          <h4 id="name-client-behaviour">
-<a href="#section-6.1.2" class="section-number selfRef">6.1.2. </a><a href="#name-client-behaviour" class="section-name selfRef">Client behaviour</a>
-          </h4>
-<p id="section-6.1.2-1">Clients generally only have one fork of a given group. If they send a message,
-that's the fork they choose.<a href="#section-6.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.1.2-2">Epoch states are generally deleted immediately after processing the next commit,
-except when the server indicates that the epoch state should be retained.<a href="#section-6.1.2-2" class="pilcrow">¶</a></p>
-<p id="section-6.1.2-3">When a client receives a commit for an old epoch (i.e. if a fork occurs), it
-retains the fork where the first differing commit has the lexicographically
-higher confirmation tag.<a href="#section-6.1.2-3" class="pilcrow">¶</a></p>
-<p id="section-6.1.2-4">To keep the scenario simple, losing forks are simply deleted.<a href="#section-6.1.2-4" class="pilcrow">¶</a></p>
-</section>
-</div>
-</section>
-</div>
-</section>
-</div>
 <div id="security-considerations">
-<section id="section-7">
+<section id="section-6">
       <h2 id="name-security-considerations">
-<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-7-1">The use of a PPRF to derive init secrets for new epochs significantly improves
+<p id="section-6-1">The use of a PPRF to derive init secrets for new epochs significantly improves
 forward secrecy in scenarios where clients need to be able to process multiple
-commits for a given epoch.<a href="#section-7-1" class="pilcrow">¶</a></p>
-<p id="section-7-2">However, PPRF only improves forward secrecy for the init secret. Group members
+commits for a given epoch.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">However, PPRF only improves forward secrecy for the init secret. Group members
 must still delay the deletion of other secrets such as the (private) decryption
 keys for the nodes in the ratchet tree. This delay in deletion compromises the
 forward secrecy of the protocol. Conversely, the fact that other group members
 might encrypt to those keys in turn weakens the protocol's post-compromise
-security.<a href="#section-7-2" class="pilcrow">¶</a></p>
-<p id="section-7-3">It is thus still advisable to delete old epoch states as soon as the functional
-requirements of the application allows it.<a href="#section-7-3" class="pilcrow">¶</a></p>
-<p id="section-7-4">A rule that will be safe for most applications, for example, is that an old
+security.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">It is thus still advisable to delete old epoch states as soon as the functional
+requirements of the application allows it.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4">A rule that will be safe for most applications, for example, is that an old
 epoch state can be deleted once each group member has sent a commit on at least
 one fork "upstream" of that epoch state. This signals that all group members
-have agreed to continue using this particular fork of the group state.<a href="#section-7-4" class="pilcrow">¶</a></p>
-<p id="section-7-5">For effective forward secrecy and post-compromise security it is thus advisable
+have agreed to continue using this particular fork of the group state.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">For effective forward secrecy and post-compromise security it is thus advisable
 to choose a state management algorithm where members converge on a shared fork
-rather than continuously using different forks of the same group.<a href="#section-7-5" class="pilcrow">¶</a></p>
+rather than continuously using different forks of the same group.<a href="#section-6-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-8">
+<section id="section-7">
       <h2 id="name-iana-considerations">
-<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-8-1">This document has no IANA actions.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-7-1">This document has no IANA actions.<a href="#section-7-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-combined-references">
-<section id="section-9">
+<section id="section-8">
       <h2 id="name-references">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-references" class="section-name selfRef">References</a>
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
 <div id="sec-normative-references">
-<section id="section-9.1">
+<section id="section-8.1">
         <h3 id="name-normative-references">
-<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
 <dt id="RFC9420">[RFC9420]</dt>
-        <dd>
-<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Beurdouche, B.</span>, <span class="refAuthor">Robert, R.</span>, <span class="refAuthor">Millican, J.</span>, <span class="refAuthor">Omara, E.</span>, and <span class="refAuthor">K. Cohn-Gordon</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Protocol"</span>, <span class="seriesInfo">RFC 9420</span>, <span class="seriesInfo">DOI 10.17487/RFC9420</span>, <time datetime="2023-07" class="refDate">July 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9420">https://www.rfc-editor.org/rfc/rfc9420</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC9750">[RFC9750]</dt>
       <dd>
-<span class="refAuthor">Beurdouche, B.</span>, <span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Omara, E.</span>, <span class="refAuthor">Inguva, S.</span>, and <span class="refAuthor">A. Duric</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Architecture"</span>, <span class="seriesInfo">RFC 9750</span>, <span class="seriesInfo">DOI 10.17487/RFC9750</span>, <time datetime="2025-04" class="refDate">April 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9750">https://www.rfc-editor.org/rfc/rfc9750</a>&gt;</span>. </dd>
+<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Beurdouche, B.</span>, <span class="refAuthor">Robert, R.</span>, <span class="refAuthor">Millican, J.</span>, <span class="refAuthor">Omara, E.</span>, and <span class="refAuthor">K. Cohn-Gordon</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Protocol"</span>, <span class="seriesInfo">RFC 9420</span>, <span class="seriesInfo">DOI 10.17487/RFC9420</span>, <time datetime="2023-07" class="refDate">July 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9420">https://www.rfc-editor.org/rfc/rfc9420</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
 </div>
 <div id="sec-informative-references">
-<section id="section-9.2">
+<section id="section-8.2">
         <h3 id="name-informative-references">
-<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
 <dt id="FRCGKA">[FRCGKA]</dt>
